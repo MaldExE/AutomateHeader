@@ -1,32 +1,32 @@
 #!/bin/bash
 
-# Ce script utilise le projet shcheck sur GitHub : https://github.com/santoru/shcheck
+# This script uses the shcheck project on GitHub : https://github.com/santoru/shcheck
 
 usage() {
-    echo "Usage: $0 [-f <fichier_entree>] [-o <fichier_sortie>] [-D]"
+    echo "Usage: $0 [-f <input_file>] [-o <output_file>] [-D]"
     echo "Options:"
-    echo "  -f, --file <fichier>    Spécifie le fichier contenant la liste des applications à vérifier"
-    echo "  -o, --output <fichier>  Spécifie le fichier de sortie pour le résultat en Markdown (optionnel)"
-    echo "  -D, --Download          Télécharge le projet shcheck depuis GitHub"
-    echo "  -h, --help              Affiche ce message d'aide"
+    echo "  -f, --file <file>       Specifies the file containing the list of applications to check"
+    echo "  -o, --output <file>     Specifies the output file for the result in Markdown format (optional)"
+    echo "  -D, --Download          Downloads the shcheck project from GitHub"
+    echo "  -h, --help              Displays this help message"
     exit 1
 }
 
-fichier_entree=""
-fichier_sortie=""
+inputfile=""
+outputfile=""
 download_project=false
 
 download_shcheck() {
-    echo "Téléchargement du projet shcheck..."
+    echo "Downloading shcheck projet."
     if ! command -v git &> /dev/null; then
-        echo "Erreur : git n'est pas installé. Veuillez l'installer pour télécharger le projet."
+        echo "Error: git is not installed. Please install it to download the project."
         exit 1
     fi
     git clone https://github.com/santoru/shcheck.git
     if [ $? -eq 0 ]; then
-        echo "Le projet shcheck a été téléchargé avec succès."
+        echo "The shcheck project has been successfully downloaded."
     else
-        echo "Erreur lors du téléchargement du projet shcheck."
+        echo "Error downloading shcheck project."
         exit 1
     fi
 }
@@ -34,11 +34,11 @@ download_shcheck() {
 while [[ $# -gt 0 ]]; do
     case $1 in
         -f|--file)
-            fichier_entree="$2"
+            inputfile="$2"
             shift 2
             ;;
         -o|--output)
-            fichier_sortie="$2"
+            outputfile="$2"
             shift 2
             ;;
         -D|--Download)
@@ -49,7 +49,7 @@ while [[ $# -gt 0 ]]; do
             usage
             ;;
         *)
-            echo "Option non reconnue: $1"
+            echo "Unrecognized option: $1"
             usage
             ;;
     esac
@@ -60,39 +60,39 @@ if $download_project; then
     exit 0
 fi
 
-if [ -z "$fichier_entree" ]; then
-    echo "Erreur : Vous devez spécifier un fichier d'entrée avec l'option -f ou --file"
+if [ -z "$inputfile" ]; then
+    echo "Error: You must specify an input file with the -f or --file option"
     usage
 fi
 
-if [ ! -f "$fichier_entree" ]; then
-    echo "Le fichier $fichier_entree n'existe pas."
+if [ ! -f "$inputfile" ]; then
+    echo "The $inputfile file does not exist."
     exit 1
 fi
 
 output() {
-    if [ -n "$fichier_sortie" ]; then
-        echo "$1" >> "$fichier_sortie"
+    if [ -n "$outputfile" ]; then
+        echo "$1" >> "$outputfile"
     else
         echo "$1"
     fi
 }
 
-if [ -n "$fichier_sortie" ]; then
-    sortie_dir=$(dirname "$fichier_sortie")
+if [ -n "$outputfile" ]; then
+    sortie_dir=$(dirname "$outputfile")
     if [ ! -d "$sortie_dir" ]; then
         mkdir -p "$sortie_dir"
         if [ $? -ne 0 ]; then
-            echo "Erreur : Impossible de créer le répertoire $sortie_dir"
+            echo "Error: Unable to create directory $sortie_dir"
             exit 1
         fi
     fi
-    > "$fichier_sortie"
+    > "$outputfile"
 fi
 
 
 if [ ! -f "shcheck/shcheck.py" ]; then
-    echo "Erreur : shcheck.py n'a pas été trouvé. Utilisez l'option -D ou --Download pour télécharger le projet."
+    echo "Error: shcheck.py not found. Use the -D or --Download option to download the project."
     exit 1
 fi
 
@@ -126,8 +126,8 @@ do
     fi
 
     output "| $ligne | $strict_transport | $content_security | $x_frame | $x_content_type | $x_xss |"
-done < "$fichier_entree"
+done < "$inputfile"
 
-if [ -n "$fichier_sortie" ]; then
-    echo "Le résultat a été écrit dans $fichier_sortie"
+if [ -n "$outputfile" ]; then
+    echo "The result was written in $outputfile"
 fi
