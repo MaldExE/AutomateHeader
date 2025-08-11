@@ -17,7 +17,7 @@ outputfile=""
 download_project=false
 
 download_shcheck() {
-    echo "Downloading shcheck projet."
+    echo "Downloading shcheck project."
     if ! command -v git &> /dev/null; then
         echo "Error: git is not installed. Please install it to download the project."
         exit 1
